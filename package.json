@@ -1,0 +1,15 @@
+{
+  "name": "uxtweak",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "turborepo": "^0.0.1"
+  }
+}
