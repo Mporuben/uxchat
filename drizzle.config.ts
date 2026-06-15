@@ -6,6 +6,6 @@ export default defineConfig({
   schema: './db/schema.ts',
   dialect: 'postgresql',
   dbCredentials: {
-    url: 'postgresql://pguser:pgpassword@host.docker.internal:5432/bitship',
+    url: 'postgresql://pguser:pgpassword@host.docker.internal:5432/uxtweak',
   },
 });
