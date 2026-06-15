@@ -1,0 +1,56 @@
+services:
+  # Share development container
+  dev:
+    container_name: ux-dev
+    command: pnpm dev
+    build: .ops/docker/dev
+    environment:
+      HOST: 0.0.0.0
+      # Nuxt 3 specifically:
+      NUXT_HOST: 0.0.0.0
+      WS_PORT: 3001
+      NUXT_POSTGRES_URL: postgresql://pguser:pgpassword@host.containers.internal:5432/uxtweak
+      #LOGTO Local Dev Instance
+      NUXT_LOGTO_ENDPOINT: https://fxhslt.logto.app/
+      NUXT_LOGTO_APP_ID: jmeukn6x7kpnmmlkbsj9a
+      NUXT_LOGTO_APP_SECRET: jVufX88inlkGahqWlenzMkbZ89ANZKaF
+      NUXT_LOGTO_COOKIE_ENCRYPTION_KEY: 'YyYkvGoW2qGMJd1lBDo66bx5J7ShElhd'
+    ports:
+      - 3000:3000
+      - 3001:3001
+    expose:
+      - 3000
+      - 3001
+    volumes:
+      - ./:/app
+      - pnpm-store:/pnpm
+
+  drizzle-studio:
+    container_name: drizzle-studio
+    command: npx drizzle-kit studio --port 3002 --host 0.0.0.0  --verbose
+    build: .ops/docker/dev
+    ports:
+      - 3002:3002
+    expose:
+      - 3002
+    volumes:
+      - ./:/app
+      - pnpm-store:/pnpm
+
+  #==============================> Infra
+  db:
+    image: postgres:17
+    container_name: ux-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_DB: uxtweak
+    volumes:
+      - ux-db:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+volumes:
+  pnpm-store:
+  ux-db:
