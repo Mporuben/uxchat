@@ -82,8 +82,8 @@ watch(isLoading, (loading) => {
 
       <div v-else>
         <div v-for="message in messages" :key="message.id" class="message-row q-mb-md">
-          <q-avatar size="36px" class="q-mr-sm">
-            <img src="https://cdn.quasar.dev/img/avatar1.jpg" />
+          <q-avatar size="36px" class="q-mr-sm" color="primary">
+            {{ message.author[0] }}
           </q-avatar>
           <div class="message-content">
             <div class="message-header">
