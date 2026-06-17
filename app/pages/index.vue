@@ -1,78 +1,53 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, watch } from 'vue';
 
-interface Message {
-  id: string;
-  user: string;
-  avatar: string;
-  content: string;
-  timestamp: Date;
-}
-
-const newMessage = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
+const user = useLogtoUser();
 
-const messages = ref<Message[]>([
-  {
-    id: '1',
-    user: 'Alice Johnson',
-    avatar: 'https://cdn.quasar.dev/img/avatar1.jpg',
-    content: 'Hey team! How is the new feature coming along?',
-    timestamp: new Date('2024-01-15T09:30:00'),
-  },
-  {
-    id: '2',
-    user: 'Bob Smith',
-    avatar: 'https://cdn.quasar.dev/img/avatar2.jpg',
-    content: 'Making good progress! Should have the first draft ready by EOD.',
-    timestamp: new Date('2024-01-15T09:32:00'),
-  },
-  {
-    id: '3',
-    user: 'Alice Johnson',
-    avatar: 'https://cdn.quasar.dev/img/avatar1.jpg',
-    content: 'That sounds great! Let me know if you need any help with the design specs.',
-    timestamp: new Date('2024-01-15T09:35:00'),
-  },
-  {
-    id: '4',
-    user: 'Charlie Davis',
-    avatar: 'https://cdn.quasar.dev/img/avatar3.jpg',
-    content: 'I can help with the API integration once the frontend is ready. Just ping me!',
-    timestamp: new Date('2024-01-15T09:40:00'),
-  },
-]);
+const { t } = await useTranslation();
+
+const { messages, input, isLoading, sendMessage } = useMessages();
+
+const { typingUsers, isTyping } = useTyping(input);
 
 function formatTime(date: Date): string {
   return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
-async function sendMessage() {
-  if (!newMessage.value.trim()) return;
-
-  const message: Message = {
-    id: Date.now().toString(),
-    user: 'You',
-    avatar: 'https://cdn.quasar.dev/img/avatar4.jpg',
-    content: newMessage.value,
-    timestamp: new Date(),
-  };
-
-  messages.value.push(message);
-  newMessage.value = '';
-
+async function scrollToBottom() {
   await nextTick();
   if (messagesContainer.value) {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
   }
 }
 
+const typingText = computed(() => {
+  const users = Array.from(typingUsers.value);
+  if (users.length === 0) return '';
+  if (users.length === 1) return `${users[0]} is typing...`;
+  if (users.length === 2) return `${users[0]} and ${users[1]} are typing...`;
+  return `${users.slice(0, 2).join(', ')} and ${users.length - 2} others are typing...`;
+});
+
+async function handleSend() {
+  await sendMessage();
+  await scrollToBottom();
+}
+
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
-    sendMessage();
+    handleSend();
   }
 }
+
+// Scroll to bottom when messages change
+watch(messages, () => scrollToBottom(), { deep: true });
+
+// Initial scroll
+watch(isLoading, (loading) => {
+  if (!loading) scrollToBottom();
+});
 </script>
 
 <template>
@@ -81,8 +56,8 @@ function handleKeydown(event: KeyboardEvent) {
       <q-toolbar-title>UX Chat</q-toolbar-title>
 
       <q-btn flat round>
-        <q-avatar size="32px">
-          <img src="https://cdn.quasar.dev/img/avatar4.jpg" />
+        <q-avatar size="32px" color="primary" text-color="white">
+          {{ user?.username[0] }}
         </q-avatar>
 
         <q-menu anchor="top right" self="bottom right">
@@ -90,35 +65,49 @@ function handleKeydown(event: KeyboardEvent) {
             <q-item-section avatar>
               <q-icon name="logout" />
             </q-item-section>
-            <q-item-section>Logout</q-item-section>
+            <q-item-section>{{ t('user.dropdown') }}</q-item-section>
           </q-item>
         </q-menu>
       </q-btn>
     </q-toolbar>
 
     <div ref="messagesContainer" class="col q-pa-md messages-container">
-      <div v-for="message in messages" :key="message.id" class="message-row q-mb-md">
-        <q-avatar size="36px" class="q-mr-sm">
-          <img :src="message.avatar" />
-        </q-avatar>
-        <div class="message-content">
-          <div class="message-header">
-            <span class="text-weight-bold">{{ message.user }}</span>
-            <span class="text-caption text-grey q-ml-sm">{{ formatTime(message.timestamp) }}</span>
+      <div v-if="isLoading" class="text-center q-pa-lg">
+        <q-spinner-dots size="40px" color="primary" />
+      </div>
+
+      <div v-else-if="messages.length === 0" class="text-center q-pa-lg text-grey">
+        {{ t('chat.noMessages') }}
+      </div>
+
+      <div v-else>
+        <div v-for="message in messages" :key="message.id" class="message-row q-mb-md">
+          <q-avatar size="36px" class="q-mr-sm">
+            <img src="https://cdn.quasar.dev/img/avatar1.jpg" />
+          </q-avatar>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="text-weight-bold">{{ message.author }}</span>
+              <span class="text-caption text-grey q-ml-sm">{{ formatTime(message.createdAt) }}</span>
+            </div>
+            <div class="message-text">{{ message.message }}</div>
           </div>
-          <div class="message-text">{{ message.content }}</div>
         </div>
       </div>
     </div>
 
+    <div v-if="isTyping" class="q-px-md typing-indicator">
+      <span class="text-caption text-grey">{{ typingText }}</span>
+    </div>
+
     <div class="q-pa-md">
       <q-input
-        v-model="newMessage"
+        v-model="input"
         type="textarea"
         outlined
         dense
         autogrow
-        placeholder="Message #general"
+        :placeholder="t('chat.messageInputPlaceholder')"
         class="full-width"
         @keydown="handleKeydown"
       >
@@ -126,8 +115,8 @@ function handleKeydown(event: KeyboardEvent) {
           <q-icon
             name="send"
             class="cursor-pointer"
-            :class="newMessage.trim() ? 'text-primary' : 'text-grey'"
-            @click="sendMessage"
+            :class="input.trim() ? 'text-primary' : 'text-grey'"
+            @click="handleSend"
           />
         </template>
       </q-input>
@@ -171,5 +160,20 @@ function handleKeydown(event: KeyboardEvent) {
 .message-text {
   margin-top: 2px;
   line-height: 1.4;
+}
+
+.typing-indicator {
+  height: 20px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 </style>
