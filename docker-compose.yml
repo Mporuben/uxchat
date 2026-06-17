@@ -12,9 +12,9 @@ services:
       NUXT_POSTGRES_URL: postgresql://pguser:pgpassword@host.containers.internal:5432/uxtweak
       #LOGTO Local Dev Instance
       NUXT_LOGTO_ENDPOINT: https://fxhslt.logto.app/
-      NUXT_LOGTO_APP_ID: jmeukn6x7kpnmmlkbsj9a
-      NUXT_LOGTO_APP_SECRET: jVufX88inlkGahqWlenzMkbZ89ANZKaF
-      NUXT_LOGTO_COOKIE_ENCRYPTION_KEY: 'YyYkvGoW2qGMJd1lBDo66bx5J7ShElhd'
+      NUXT_LOGTO_APP_ID: qx87vhod6fysgohlllmzt
+      NUXT_LOGTO_APP_SECRET: wIfLhRZwNZkZXwAh4xkkEJMruyfvSIqL
+      NUXT_LOGTO_COOKIE_ENCRYPTION_KEY: '7c8wDMyoTKNvskY8tTP5RJqplOSEEDw6'
     ports:
       - 3000:3000
       - 3001:3001

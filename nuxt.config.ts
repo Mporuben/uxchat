@@ -18,7 +18,19 @@ export default defineNuxtConfig({
       font: 'roboto-font',
     },
   },
+
+  logto: {
+    fetchUserInfo: true,
+    pathnames: {
+      signIn: '/login',
+      signOut: '/logout',
+      callback: '/callback',
+    },
+  },
   runtimeConfig: {
+    public: {
+      logtoEndpoint: process.env.NUXT_LOGTO_ENDPOINT + 'sign-in',
+    },
     logto: {
       endpoint: process.env.NUXT_LOGTO_ENDPOINT,
       appId: process.env.NUXT_LOGTO_APP_ID,
