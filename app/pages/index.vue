@@ -81,16 +81,24 @@ watch(isLoading, (loading) => {
       </div>
 
       <div v-else>
-        <div v-for="message in messages" :key="message.id" class="message-row q-mb-md">
+        <div
+          v-for="message in messages"
+          :key="message.id"
+          class="message-row q-mb-md"
+          :class="{ 'message-own': message.author === user?.username }"
+        >
           <q-avatar size="36px" class="q-mr-sm" color="primary">
             {{ message.author[0] }}
+            <q-tooltip>{{ message.author }}</q-tooltip>
           </q-avatar>
           <div class="message-content">
-            <div class="message-header">
-              <span class="text-weight-bold">{{ message.author }}</span>
-              <span class="text-caption text-grey q-ml-sm">{{ formatTime(message.createdAt) }}</span>
-            </div>
             <div class="message-text">{{ message.message }}</div>
+            <div class="message-header">
+              <!-- <span v-if="message.author !== user?.username" class="text-weight-bold">{{ message.author }}</span> -->
+              <span class="text-caption text-grey" ">{{
+                formatTime(message.createdAt)
+              }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -138,6 +146,23 @@ watch(isLoading, (loading) => {
 .message-row {
   display: flex;
   align-items: flex-start;
+}
+
+.message-own {
+  flex-direction: row-reverse;
+}
+
+.message-own .q-avatar {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+.message-own .message-content {
+  text-align: right;
+}
+
+.message-own .message-header {
+  justify-content: flex-end;
 }
 
 .message-row:hover {
