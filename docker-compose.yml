@@ -13,6 +13,7 @@ services:
       #LOGTO Local Dev Instance
       NUXT_LOGTO_ENDPOINT: https://fxhslt.logto.app/
       NUXT_LOGTO_APP_ID: qx87vhod6fysgohlllmzt
+      WS_TOKEN_SECRET: SECRET_TOKEN_123
       NUXT_LOGTO_APP_SECRET: wIfLhRZwNZkZXwAh4xkkEJMruyfvSIqL
       NUXT_LOGTO_COOKIE_ENCRYPTION_KEY: '7c8wDMyoTKNvskY8tTP5RJqplOSEEDw6'
     ports:
