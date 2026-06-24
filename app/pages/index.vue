@@ -22,7 +22,7 @@ async function scrollToBottom() {
 }
 
 const typingText = computed(() => {
-  const users = Array.from(typingUsers.value);
+  const users = Array.from(typingUsers.value).filter(u => u !== user?.username);
   if (users.length === 0) return '';
   if (users.length === 1) return `${users[0]} is typing...`;
   if (users.length === 2) return `${users[0]} and ${users[1]} are typing...`;
@@ -104,7 +104,7 @@ watch(isLoading, (loading) => {
       </div>
     </div>
 
-    <div v-if="isTyping" class="q-px-md typing-indicator">
+    <div v-if="typingText" class="q-px-md typing-indicator">
       <span class="text-caption text-grey">{{ typingText }}</span>
     </div>
 

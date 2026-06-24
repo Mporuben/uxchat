@@ -1,4 +1,3 @@
-import { onMounted } from 'vue';
 export async function useTranslation() {
   const { data: translations } = await useAsyncData('translations', () => queryCollection('translations').first());
 
