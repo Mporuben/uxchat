@@ -87,7 +87,7 @@ watch(isLoading, (loading) => {
           class="message-row q-mb-md"
           :class="{ 'message-own': message.author === user?.username }"
         >
-          <q-avatar size="36px" class="q-mr-sm" color="primary">
+          <q-avatar size="36px" class="q-mr-sm" color="primary" text-color="white">
             {{ message.author[0] }}
             <q-tooltip>{{ message.author }}</q-tooltip>
           </q-avatar>
