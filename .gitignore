@@ -38,11 +38,15 @@ coverage
 
 *.tsbuildinfo
 
-.eslintcache
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
 
-# Cypress
-/cypress/videos/
-/cypress/screenshots/
+
+.eslintcache
 
 # Vitest
 __screenshots__/
