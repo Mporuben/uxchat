@@ -1,22 +1,32 @@
 import { observable } from '@trpc/server/observable';
-import { router, publicProcedure } from '../trpc';
+import { router, publicProcedure, protectedProcedure } from '../trpc';
+import { z } from 'zod';
 
 export const typing = router({
-  // Mutation: Signal that user is typing
-  set: publicProcedure.mutation(({ input }) => {
-    // TODO PG notify and get user ID
+  // Mutation: Send typing indicator
+  set: protectedProcedure.input(z.object({ isTyping: z.boolean() })).mutation(async ({ ctx, input }) => {
+    const username = ctx.user.username ?? ctx.user.name ?? ctx.user.sub;
+
+    await notify<TypingPayload>(PG_CHANNELS.TYPING, {
+      username,
+      isTyping: input.isTyping,
+    });
+
     return { success: true };
   }),
+
   // Subscription: Listen for typing indicators
   on: publicProcedure.subscription(() => {
-    return observable<{ author: string; isTyping: boolean }>((emit) => {
-      const onTyping = (data: { author: string; isTyping: boolean }) => {
-        emit.next(data);
+    return observable<{ username: string; isTyping: boolean }>((emit) => {
+      const onTyping = (payload: TypingPayload) => {
+        emit.next(payload);
       };
 
-      // TODO PG notify
+      pgEvents.on(PG_CHANNELS.TYPING, onTyping);
 
-      return;
+      return () => {
+        pgEvents.off(PG_CHANNELS.TYPING, onTyping);
+      };
     });
   }),
 });
