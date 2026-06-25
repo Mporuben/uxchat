@@ -4,6 +4,10 @@ import { ref, nextTick, watch } from 'vue';
 const messagesContainer = ref<HTMLElement | null>(null);
 const user = useLogtoUser();
 
+const logout = () => {
+  window.location.href = '/logout'
+}
+
 const { t } = await useTranslation();
 
 const { messages, input, isLoading, sendMessage } = useMessages();
@@ -61,7 +65,7 @@ watch(isLoading, (loading) => {
         </q-avatar>
 
         <q-menu anchor="top right" self="bottom right">
-          <q-item clickable v-close-popup>
+          <q-item clickable v-close-popup @click="logout">
             <q-item-section avatar>
               <q-icon name="logout" />
             </q-item-section>
@@ -71,8 +75,8 @@ watch(isLoading, (loading) => {
       </q-btn>
     </q-toolbar>
 
-    <div ref="messagesContainer" class="col q-pa-md messages-container">
-      <div v-if="isLoading" class="text-center q-pa-lg">
+    <div ref="messagesContainer" class="col q-pa-md messages-container" data-test="messages-container">
+      <div v-if="isLoading" class="text-center q-pa-lg" data-test="messages-loading">
         <q-spinner-dots size="40px" color="primary" />
       </div>
 
@@ -92,7 +96,7 @@ watch(isLoading, (loading) => {
             <q-tooltip>{{ message.author }}</q-tooltip>
           </q-avatar>
           <div class="message-content">
-            <div class="message-text">{{ message.message }}</div>
+            <div class="message-text" data-test="message-text">{{ message.message }}</div>
             <div class="message-header">
               <!-- <span v-if="message.author !== user?.username" class="text-weight-bold">{{ message.author }}</span> -->
               <span class="text-caption text-grey" ">{{
@@ -117,6 +121,7 @@ watch(isLoading, (loading) => {
         autogrow
         :placeholder="t('chat.messageInputPlaceholder')"
         class="full-width"
+        data-test="message-input"
         @keydown="handleKeydown"
       >
         <template #append>
@@ -124,6 +129,7 @@ watch(isLoading, (loading) => {
             name="send"
             class="cursor-pointer"
             :class="input.trim() ? 'text-primary' : 'text-grey'"
+            data-test="send-button"
             @click="handleSend"
           />
         </template>
