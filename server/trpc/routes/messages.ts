@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { observable } from '@trpc/server/observable';
 import { desc } from 'drizzle-orm';
-import { router, publicProcedure } from '../trpc';
+import { router, publicProcedure, protectedProcedure } from '../trpc';
 import { messages as messagesSchema } from '../../../db/schema';
+import { notify, pgEvents, PG_CHANNELS, type NewMessagePayload, type TypingPayload } from '../../utils/pgNotify';
 
 export const messages = router({
   // Query: Get all messages
@@ -18,25 +19,29 @@ export const messages = router({
     .query(async ({ ctx, input }) => {
       const limit = input?.limit ?? 50;
       const offset = input?.offset ?? 0;
+      try {
+        const result = await ctx.db
+          .select()
+          .from(messagesSchema)
+          .orderBy(desc(messagesSchema.createdAt))
+          .limit(limit)
+          .offset(offset);
 
-      const result = await ctx.db
-        .select()
-        .from(messagesSchema)
-        .orderBy(desc(messagesSchema.createdAt))
-        .limit(limit)
-        .offset(offset);
-
-      // Return in chronological order for display
-      return result.reverse();
+        // Return in chronological order for display
+        return result.reverse();
+      } catch (err) {
+        console.log(err);
+      }
     }),
 
   // Mutation: Post a new message
-  post: publicProcedure.input(z.object({ message: z.string().min(1) })).mutation(async ({ ctx, input }) => {
-    // TODO get user id
+  post: protectedProcedure.input(z.object({ message: z.string().min(1) })).mutation(async ({ ctx, input }) => {
+    const author = ctx.user.username ?? ctx.user.name ?? ctx.user.sub;
+
     const result = await ctx.db
       .insert(messagesSchema)
       .values({
-        author: input.author,
+        author,
         message: input.message,
       })
       .returning();
@@ -46,21 +51,34 @@ export const messages = router({
       throw new Error('Failed to insert message');
     }
 
-    // TODO PG notify
+    // Notify all subscribers via PostgreSQL
+    await notify<NewMessagePayload>(PG_CHANNELS.NEW_MESSAGE, {
+      id: newMessage.id,
+      author: newMessage.author,
+      message: newMessage.message,
+      createdAt: newMessage.createdAt.toISOString(),
+    });
 
     return newMessage;
   }),
 
-  // Subscription: Listen for new messagesSchema
+  // Subscription: Listen for new messages
   on: publicProcedure.subscription(() => {
     return observable<{ id: number; author: string; message: string; createdAt: Date }>((emit) => {
-      const onNewMessage = (message: { id: number; author: string; message: string; createdAt: Date }) => {
-        emit.next(message);
+      const onNewMessage = (payload: NewMessagePayload) => {
+        emit.next({
+          id: payload.id,
+          author: payload.author,
+          message: payload.message,
+          createdAt: new Date(payload.createdAt),
+        });
       };
 
-      // TODO PG notify
+      pgEvents.on(PG_CHANNELS.NEW_MESSAGE, onNewMessage);
 
-      return;
+      return () => {
+        pgEvents.off(PG_CHANNELS.NEW_MESSAGE, onNewMessage);
+      };
     });
   }),
 });

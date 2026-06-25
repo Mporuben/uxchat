@@ -4,6 +4,7 @@ import { applyWSSHandler } from '@trpc/server/adapters/ws';
 import { appRouter } from '../trpc/routes';
 import { db } from '../utils/db';
 import { validateWsToken } from '../utils/wsToken';
+import { initPgListeners, closePgListeners } from '../utils/pgNotify';
 import type { Context } from '../trpc/trpc';
 
 // Store authenticated user data per WebSocket connection
@@ -11,7 +12,10 @@ const connectionUserMap = new WeakMap<WebSocket, { sub: string; username?: strin
 
 let wss: WebSocketServer | null = null;
 
-export default defineNitroPlugin((nitroApp) => {
+export default defineNitroPlugin(async (nitroApp) => {
+  // Initialize PostgreSQL LISTEN for real-time events
+  await initPgListeners();
+
   const port = parseInt(process.env.WS_PORT || '3001', 10);
 
   // Create WebSocket server on a separate port with custom verifyClient
@@ -63,12 +67,13 @@ export default defineNitroPlugin((nitroApp) => {
     });
   });
 
-  console.log(`[tRPC] WebSocket server listening on ws://localhost:${port}`);
+  console.log(`[tRPC] WebSocket server listening`);
 
   // Cleanup on shutdown
-  nitroApp.hooks.hook('close', () => {
+  nitroApp.hooks.hook('close', async () => {
     handler.broadcastReconnectNotification();
     wss?.close();
+    await closePgListeners();
   });
 });
 

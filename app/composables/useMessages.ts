@@ -60,7 +60,7 @@ export function useMessages() {
   }
 
   function subscribeToMessages() {
-    newMessageSubscription = $trpc.messages.onMessage.subscribe(undefined, {
+    newMessageSubscription = $trpc.messages.on.subscribe(undefined, {
       onData: (message) => {
         // Avoid duplicates
         if (!messages.value.find((m) => m.id === message.id)) {

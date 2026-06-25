@@ -18,7 +18,7 @@ export function useTyping(input) {
     }
 
     try {
-      await $trpc.messages.typing.mutate({
+      await $trpc.typing.set.mutate({
         isTyping,
       });
     } catch (e) {
@@ -27,7 +27,7 @@ export function useTyping(input) {
   }
 
   function subscribeToTyping() {
-    typingSubscription = $trpc.messages.onTyping.subscribe(undefined, {
+    typingSubscription = $trpc.typing.on.subscribe(undefined, {
       onData: ({ username, isTyping }) => {
         if (isTyping) {
           typingUsers.value.add(username);
