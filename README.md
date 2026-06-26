@@ -14,6 +14,18 @@ docker compose run --rm dev pnpm i
 docker compose up -d
 ```
 
+### Test
+
+```
+docker exec -it ux-dev pnpm test
+```
+
+## Type check
+
+```
+docker compose run dev pnpm typecheck
+```
+
 ---
 
 ## Architecture
@@ -38,3 +50,5 @@ Notify i my choice for facilitating real time communication. It allows me scale 
 and their communication is facilitated by Postgres itself.
 
 ### Playwright
+
+Playwright is an E2E testing framework that simulates actual user testing in the browser. I have more experience with integration testing in vite, but for this assignment I picked playwright so I can test both the UI and the BE API with a single test runner instance. On a larger-scale project, more granular testing like integration or unit testing should do the heavy lifting. E2E tests are more resource-heavy and prone to flakiness.

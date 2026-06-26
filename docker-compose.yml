@@ -17,6 +17,9 @@ services:
       WS_TOKEN_SECRET: SECRET_TOKEN_123
       NUXT_LOGTO_APP_SECRET: wIfLhRZwNZkZXwAh4xkkEJMruyfvSIqL
       NUXT_LOGTO_COOKIE_ENCRYPTION_KEY: '7c8wDMyoTKNvskY8tTP5RJqplOSEEDw6'
+      TEST_URL: 'http://localhost:3000'
+      TEST_USERNAME: 'test'
+      TEST_PASSWORD: 'NAE3zrv0rmy_kgw*uyx'
     ports:
       - 3000:3000
       - 3001:3001

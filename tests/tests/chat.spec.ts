@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-const url = 'http://localhost:3000';
+const url = process.env.TEST_URL;
 
-const username = 'test';
-const password = 'NAE3zrv0rmy_kgw*uyx';
+const username = process.env.TEST_USERNAME;
+const password = process.env.TEST_PASSWORD;
 
 test('login with Logto', async ({ page }) => {
   await page.goto(url);

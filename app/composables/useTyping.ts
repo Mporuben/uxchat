@@ -37,7 +37,7 @@ export function useTyping(input) {
         // Force reactivity
         typingUsers.value = new Set(typingUsers.value);
       },
-      onError: (err) => {
+      onError: (err: any) => {
         console.error('Typing subscription error:', err);
       },
     });

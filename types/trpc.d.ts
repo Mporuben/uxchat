@@ -1,5 +1,5 @@
 import type { TRPCClient } from '@trpc/client';
-import type { AppRouter } from '../server/trpc/routers';
+import type { AppRouter } from '../server/trpc/routes';
 
 declare module '#app' {
   interface NuxtApp {

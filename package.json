@@ -9,9 +9,8 @@
     "preview": "nuxt preview",
     "db-generate": "npx drizzle-kit generate",
     "db-migrate": "npx drizzle-kit migrate",
-    "test": "pnpm --filter tests test",
-    "test:ui": "pnpm --filter tests test:ui",
-    "test:chrome": "pnpm --filter tests test:chrome"
+    "test": "pnpm --filter tests test:chrome",
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
     "@logto/nuxt": "^1.2.10",
