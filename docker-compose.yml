@@ -8,8 +8,9 @@ services:
       HOST: 0.0.0.0
       # Nuxt 3 specifically:
       NUXT_HOST: 0.0.0.0
-      WS_PORT: 3001
       NUXT_POSTGRES_URL: postgresql://pguser:pgpassword@host.docker.internal:5432/uxtweak
+      NUXT_WS_API: ws://localhost:3001
+      WS_PORT: 3001
       #LOGTO Local Dev Instance
       NUXT_LOGTO_ENDPOINT: https://fxhslt.logto.app/
       NUXT_LOGTO_APP_ID: qx87vhod6fysgohlllmzt

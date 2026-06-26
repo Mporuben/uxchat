@@ -21,8 +21,6 @@ export default defineNuxtPlugin(() => {
     return;
   }
 
-
-
   let reconnectAttempts = 0;
   const maxReconnectAttempts = 3;
 
@@ -33,8 +31,9 @@ export default defineNuxtPlugin(() => {
       if (!token) {
         throw new Error('Failed to get WS auth token');
       }
-      // TODO fix URL
-      return `ws://${window.location.hostname}:3001?token=${encodeURIComponent(token)}`;
+      const config = useRuntimeConfig();
+
+      return `${config.public.api}?token=${encodeURIComponent(token)}`;
     },
     onOpen: () => {
       console.log('[tRPC] WebSocket connected');

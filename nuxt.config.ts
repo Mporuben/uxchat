@@ -30,6 +30,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       logtoEndpoint: process.env.NUXT_LOGTO_ENDPOINT + 'sign-in',
+      api: process.env.NUXT_WS_API,
     },
     logto: {
       endpoint: process.env.NUXT_LOGTO_ENDPOINT,
